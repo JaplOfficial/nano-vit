@@ -10,7 +10,7 @@ class MultiHeadAttention(nn.Module):
         E_v: int,
         E_total: int,
         nheads: int,
-        droupout: float = 0.0,
+        dropout: float = 0.0,
         bias = True,
         device = None,
         dtype = None,
@@ -29,7 +29,7 @@ class MultiHeadAttention(nn.Module):
         E_out = E_q
         self.out_proj = nn.Linear(E_total, E_out, bias=bias, **factory_kwargs)
         assert E_total % nheads == 0, "Embedding dim is not divisible by nheads"
-        self.E_head = E_total / nheads
+        self.E_head = E_total // nheads
         self.bias = bias
 
     def forward(
@@ -45,9 +45,9 @@ class MultiHeadAttention(nn.Module):
                 result = self.packed_proj(query)
                 query, key, value = torch.chunk(result, 3, dim = -1)
             else:
-                q_weight, k_weight, v_weight = torch_chunk(self.packed_proj.weight, 3, dim = 0)
+                q_weight, k_weight, v_weight = torch.chunk(self.packed_proj.weight, 3, dim = 0)
                 if self.bias:
-                    q_bias, k_bias, v_bias = torch.chunk(packed_proj.bias, 3, dim = 0)
+                    q_bias, k_bias, v_bias = torch.chunk(self.packed_proj.bias, 3, dim = 0)
                 else:
                     q_bias, k_bias, v_bias = None, None, None
                     query, key, value = (
@@ -61,12 +61,12 @@ class MultiHeadAttention(nn.Module):
             value = self.v_proj(value)
         
         #Magia
-        query = query.unflatten(-1, [self.nheads, self.E_head]).transpose(1, 2)
-        key = key.unflatten(-1, [self.nheads, self.E_heads]).transpose(1, 2)
-        value = value.unflatten(-1, [self.nheads, self.E_head]).transpose(1, 2)
+        query = query.unflatten(-1, (self.nheads, self.E_head)).transpose(1, 2)
+        key = key.unflatten(-1, (self.nheads, self.E_head)).transpose(1, 2)
+        value = value.unflatten(-1, (self.nheads, self.E_head)).transpose(1, 2)
 
         attn_output = F.scaled_dot_product_attention(
-            query, key, value, droput_p = self.dropout, is_causal = is_causal
+            query, key, value, dropout_p = self.dropout, is_causal = is_causal
         )
         attn_output = attn_output.transpose(1, 2).flatten(-2)
         attn_output = self.out_proj(attn_output)
