@@ -1,10 +1,11 @@
 import torch
 import torch.nn as nn
 
-from MultiHeadAttention import MultiHeadAttention
-from SwiGLUFFN import SwiGLUFFN
-from ViTBlock import ViTBlock
-from PatchEmbedding import PatchEmbedding
+from .MultiHeadAttention import MultiHeadAttention
+from .SwiGLUFFN import SwiGLUFFN
+from .MultiHeadAttention import MultiHeadAttention
+from .PatchEmbedding import PatchEmbedding
+from .ViTBlock import ViTBlock
 
 class ViT(nn.Module):
     def __init__(

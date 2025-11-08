@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 
-from MultiHeadAttention import MultiHeadAttention
-from SwiGLUFFN import SwiGLUFFN
+from .MultiHeadAttention import MultiHeadAttention
+from .SwiGLUFFN import SwiGLUFFN
 
 class ViTBlock(nn.Module):
     def __init__(self, embed_dim: int, nheads: int
